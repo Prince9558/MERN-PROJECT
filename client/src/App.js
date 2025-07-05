@@ -1,88 +1,106 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState, useCallback } from 'react'; // useCallback added
-import axios from 'axios';
+import { Navigate, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import AppLayout from "./layout/AppLayout";
+import Dashboard from "./pages/Dashboard";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Error from "./pages/Error";
+import Logout from "./pages/Logout";
+import { serverEndpoint } from "./config/config";
+import { useDispatch, useSelector } from "react-redux";
+import { SET_USER } from "./redux/user/actions";
+import UserLayout from "./layout/UserLayout";
+import Register from "./pages/Register";
+import { Spinner } from "react-bootstrap";
+import ManageUsers from "./pages/users/ManageUsers";
+import UnauthorizedAccess from "./components/UnauthorizedAccess";
+import ProtectedRoute from "./rbac/ProtectedRoute";
+import ManagePayment from "./pages/payments/ManagePayment";
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard'
-import AppLayout from './layout/AppLayout';
 
 function App() {
+  // const [userDetails, setUserDetails] = useState(null);
   const dispatch = useDispatch();
   const userDetails = useSelector((state) => state.userDetails);
   const [loading, setLoading] = useState(true);
 
-  // useCallback to prevent function recreation on every render
-  const updateUserDetails = useCallback((user) => {
-    dispatch({ type: user ? 'SET_USER' : 'CLEAR_USER', payload: user });
-  }, [dispatch]);
+  const isUserLoggedIn = async () => {
+    try {
+      const response = await axios.post(`${serverEndpoint}/auth/is-user-logged-in`, {}, {
+        withCredentials: true
+      });
+      // updateUserDetails(response.data.user);
+      dispatch({
+        type: SET_USER,
+        payload: response.data.user
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await axios.get("http://localhost:5001/auth/isUserLoggedIn", {
-          withCredentials: true,
-        });
-        updateUserDetails(res.data.user);
-      } catch {
-        updateUserDetails(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-  }, [updateUserDetails]);
+    isUserLoggedIn();
+  }, []);
 
-  if (loading) return <div className="text-center mt-5">Loading...</div>;
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <AppLayout userDetails={userDetails} updateUserDetails={updateUserDetails}>
-            <Home userDetails={userDetails} />
-          </AppLayout>
-        }
+      <Route path="/" element={userDetails ?
+        <UserLayout>
+          <Navigate to='/dashboard' />
+        </UserLayout> :
+        <AppLayout>
+          <Home />
+        </AppLayout>
+      }
       />
-      <Route
-        path="/login"
-        element={
-          userDetails ? (
-            <Navigate to="/dashboard" />
-          ) : (
-            <AppLayout userDetails={userDetails} updateUserDetails={updateUserDetails}>
-              <Login updateUserDetails={updateUserDetails} />
-            </AppLayout>
-          )
-        }
+      <Route path="/login" element={userDetails ?
+        <Navigate to="/dashboard" /> :
+        <AppLayout>
+          <Login />
+        </AppLayout>}
       />
-      <Route
-        path="/register"
-        element={
-          userDetails ? (
-            <Navigate to="/dashboard" />
-          ) : (
-            <AppLayout userDetails={userDetails} updateUserDetails={updateUserDetails}>
-              <Register updateUserDetails={updateUserDetails} />
-            </AppLayout>
-          )
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          userDetails ? (
-            <AppLayout userDetails={userDetails} updateUserDetails={updateUserDetails}>
-              <Dashboard userDetails={userDetails} />
-            </AppLayout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
+      <Route path="/register" element={userDetails ?
+        <Navigate to='/dashboard' /> :
+        <AppLayout>
+          <Register />
+        </AppLayout>
+      } />
+      <Route path="/dashboard" element={userDetails ?
+        <UserLayout><Dashboard /></UserLayout> :
+        <Navigate to="/login" />} />
+
+      <Route path="/logout" element={userDetails ?
+        <Logout /> :
+        <Navigate to="/login" />} />
+
+      <Route path="/error" element={userDetails ?
+        <UserLayout>
+          <Error />
+        </UserLayout> :
+        <AppLayout><Error /></AppLayout>} />
+      <Route path="/users" element={userDetails ?
+        <ProtectedRoute roles={['admin']}>
+          <UserLayout>
+            <ManageUsers />
+          </UserLayout>
+        </ProtectedRoute> :
+        <Navigate to='/login' />
+      } />
+      <Route path="/unauthorized-access" element={userDetails ?
+        <UserLayout><UnauthorizedAccess /></UserLayout> :
+        <Navigate to="/login" />} />
+        <Route path="/manage-payments" element={userDetails ?
+          <UserLayout><ManagePayment/></UserLayout> :
+          <Navigate to="/login" />} />
+        
     </Routes>
   );
 }

@@ -1,70 +1,164 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { serverEndpoint } from "../config/config";
 import { useDispatch } from "react-redux";
-import axios from "axios";
-import { GoogleLogin } from "@react-oauth/google";
+import { SET_USER } from "../redux/user/actions";
 
-const Login = () => {
-  const [formData, setFormData] = useState({ username: "", password: "" });
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+function Login() {
+    const dispatch = useDispatch();
+    const [formData, setFormData] = useState({
+        username: '',
+        password: ''
+    });
+    const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleChange = (e) => {
+        const name = e.target.name;
+        const value = e.target.value;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.username || !formData.password) {
-      return setMessage("All fields are required.");
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
+
+    const validate = () => {
+        let isValid = true;
+        let newErrors = {};
+
+        if (formData.username.length === 0) {
+            isValid = false;
+            newErrors.username = "Username is mandatory";
+        }
+
+        if (formData.password.length === 0) {
+            isValid = false;
+            newErrors.password = "Password is mandatory";
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (validate()) {
+            // Data to be sent to the server
+            const body = {
+                username: formData.username,
+                password: formData.password
+            };
+            const config = {
+                // Tells axios to include cookie in the request + some other auth headers
+                withCredentials: true
+            };
+            try {
+                const response = await axios.post(`${serverEndpoint}/auth/login`, body, config);
+                dispatch({
+                    type: SET_USER,
+                    payload: response.data.user
+                });
+            } catch (error) {
+                console.log(error);
+                setErrors({ message: "Something went wrong, please try again" });
+            }
+        }
+    };
+
+    const handleGoogleSuccess = async (authResponse) => {
+        try {
+            const response = await axios.post(`${serverEndpoint}/auth/google-auth`, {
+                idToken: authResponse.credential
+            }, {
+                withCredentials: true
+            });
+            dispatch({
+                type: SET_USER,
+                payload: response.data.user
+            });
+        } catch (error) {
+            console.log(error);
+            setErrors({ message: 'Error processing google auth, please try again' });
+        }
+    };
+
+    const handleGoogleError = async (error) => {
+        console.log(error);
+        setErrors({ message: 'Error in google authorization flow, please try again' });
     }
 
-    try {
-      const res = await axios.post("http://localhost:5001/auth/login", formData, {
-        withCredentials: true,
-      });
-      dispatch({ type: "SET_USER", payload: res.data.user });
-      navigate("/dashboard");
-    } catch {
-      setMessage("Invalid username or password.");
-    }
-  };
+    return (
+        <div className="container py-5">
+            <div className="row justify-content-center">
+                <div className="col-md-4">
+                    <h2 className="text-center mb-4">Sign in to Continue</h2>
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      const idToken = credentialResponse.credential;
-      const res = await axios.post("http://localhost:5001/auth/google-login", { idToken }, { withCredentials: true });
-      dispatch({ type: "SET_USER", payload: res.data.user });
-      navigate("/dashboard");
-    } catch {
-      setMessage("Google login failed.");
-    }
-  };
+                    {/* Error Alert */}
+                    {errors.message && (
+                        <div className="alert alert-danger" role="alert">
+                            {errors.message}
+                        </div>
+                    )}
 
-  return (
-    <div className="container d-flex justify-content-center align-items-center" style={{ height: "85vh" }}>
-      <div className="card shadow border-primary" style={{ maxWidth: "420px", width: "100%" }}>
-        <div className="card-body">
-          <h3 className="text-center text-primary mb-3">🔐 Login</h3>
-          {message && <div className="alert alert-danger">{message}</div>}
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label>Username</label>
-              <input type="text" name="username" className="form-control" value={formData.username} onChange={handleChange} />
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-3">
+                            <label htmlFor="username" className="form-label">Username</label>
+                            <input
+                                type="text"
+                                className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                                id="username"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleChange}
+                            />
+                            {errors.username && (
+                                <div className="invalid-feedback">
+                                    {errors.username}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mb-3">
+                            <label htmlFor="password" className="form-label">Password</label>
+                            <input
+                                type="password"
+                                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                id="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                            />
+                            {errors.password && (
+                                <div className="invalid-feedback">
+                                    {errors.password}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="d-grid">
+                            <button type="submit" className="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+
+                    <div className="text-center">
+                        <div className="my-4 d-flex align-items-center text-muted">
+                            <hr className="flex-grow-1" />
+                            <span className="px-2">OR</span>
+                            <hr className="flex-grow-1" />
+                        </div>
+                        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={handleGoogleError}
+                            />
+                        </GoogleOAuthProvider>
+                    </div>
+                </div>
             </div>
-            <div className="mb-3">
-              <label>Password</label>
-              <input type="password" name="password" className="form-control" value={formData.password} onChange={handleChange} />
-            </div>
-            <button type="submit" className="btn btn-primary w-100">Login</button>
-          </form>
-          <div className="text-center mt-3">
-            <p className="text-muted">or login with</p>
-            <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setMessage("Google login error")} />
-          </div>
         </div>
-      </div>
-    </div>
-  );
-};
+    );
+}
 
 export default Login;

@@ -1,9 +1,9 @@
-import LinksDashboard from "./links/LinksDashboard";
+import LinksDashboard from './links/LinksDashboard';
 
-const Dashboard = ({ userDetails }) => {
-  return (
-    <LinksDashboard />
-  );
-};
+function Dashboard() {
+    return (
+        <LinksDashboard />
+    );
+}
 
 export default Dashboard;

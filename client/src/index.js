@@ -1,20 +1,19 @@
-// index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { Provider } from 'react-redux';
-import { store } from './redux/store';
-import { BrowserRouter } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { BrowserRouter } from 'react-router-dom';
+import { store } from './redux/store';
+import { Provider } from 'react-redux';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <Provider store={store}>
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+  <React.StrictMode>
+    <Provider store={store}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </GoogleOAuthProvider>
-  </Provider>
+    </Provider>
+  </React.StrictMode>
 );
