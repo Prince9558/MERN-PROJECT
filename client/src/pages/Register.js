@@ -28,8 +28,12 @@ function Register() {
     const validate = () => {
         let newErrors = {};
         let isValid = true;
+        // Email validation
         if (formData.username.length === 0) {
-            newErrors.username = "Username is mandatory";
+            newErrors.username = "Email is mandatory";
+            isValid = false;
+        } else if (!/^\S+@\S+\.\S+$/.test(formData.username)) {
+            newErrors.username = "Please enter a valid email address";
             isValid = false;
         }
 
@@ -133,9 +137,9 @@ function Register() {
                         </div>
 
                         <div className="mb-3">
-                            <label htmlFor="username" className="form-label">Username</label>
+                            <label htmlFor="username" className="form-label">Email</label>
                             <input
-                                type="text"
+                                type="email"
                                 className={`form-control ${errors.username ? 'is-invalid' : ''}`}
                                 id="username"
                                 name="username"
