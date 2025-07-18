@@ -142,6 +142,10 @@ function Login() {
                         </div>
                     </form>
 
+                    <div className="text-center mt-3">
+                        <a href="/forget-password">Forgot Password?</a>
+                    </div>
+
                     <div className="text-center">
                         <div className="my-4 d-flex align-items-center text-muted">
                             <hr className="flex-grow-1" />
