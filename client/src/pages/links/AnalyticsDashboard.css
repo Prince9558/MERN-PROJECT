@@ -1,0 +1,338 @@
+/* Analytics Dashboard Page Styles */
+.analytics-dashboard-container {
+    padding: 2rem 0;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.analytics-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.analytics-header h1 {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+}
+
+.analytics-header p {
+    color: #666;
+    margin-bottom: 0;
+}
+
+/* Filters Section */
+.filters-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.filters-section h5 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.date-picker-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.date-picker-wrapper {
+    flex: 1;
+    min-width: 200px;
+}
+
+.date-picker-wrapper .react-datepicker-wrapper {
+    width: 100%;
+}
+
+.date-picker-wrapper .form-control {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.date-picker-wrapper .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Charts Section */
+.charts-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.chart-container {
+    padding: 1.5rem;
+    border-radius: 10px;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+}
+
+.chart-container h5 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chart-container h5::before {
+    content: '📊';
+    font-size: 1.2rem;
+}
+
+.pie-chart-container h5::before {
+    content: '🥧';
+}
+
+.chart-container hr {
+    border-color: #e9ecef;
+    margin: 1rem 0;
+}
+
+/* Chart Canvas Styling */
+.chart-container canvas {
+    border-radius: 10px;
+    background: white;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Data Grid Section */
+.analytics-grid {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.analytics-grid .MuiDataGrid-root {
+    border: none;
+    font-family: inherit;
+}
+
+.analytics-grid .MuiDataGrid-cell {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 1rem;
+}
+
+.analytics-grid .MuiDataGrid-columnHeaders {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.analytics-grid .MuiDataGrid-columnHeader {
+    padding: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.analytics-grid .MuiDataGrid-row:hover {
+    background: #f8f9fa;
+}
+
+/* Stats Cards */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card .stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-card .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .stat-label {
+    color: #666;
+    font-weight: 500;
+}
+
+/* Loading State */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Error State */
+.error-container {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.error-container h3 {
+    margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .analytics-header {
+        padding: 1.5rem;
+    }
+    
+    .analytics-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .filters-section {
+        padding: 1.5rem;
+    }
+    
+    .charts-section {
+        padding: 1.5rem;
+    }
+    
+    .chart-container {
+        padding: 1rem;
+    }
+    
+    .date-picker-container {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .date-picker-wrapper {
+        min-width: 100%;
+    }
+    
+    .stats-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .analytics-header {
+        padding: 1rem;
+    }
+    
+    .analytics-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .filters-section {
+        padding: 1rem;
+    }
+    
+    .charts-section {
+        padding: 1rem;
+    }
+    
+    .chart-container {
+        padding: 0.75rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-card .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stat-card .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
+
+/* Chart.js Customization */
+.chart-container .chartjs-render-monitor {
+    border-radius: 10px;
+}
+
+/* DatePicker Customization */
+.react-datepicker {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    border-bottom: none;
+}
+
+.react-datepicker__current-month {
+    color: white;
+    font-weight: 600;
+}
+
+.react-datepicker__day-name {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.react-datepicker__day:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.react-datepicker__day--selected {
+    background: white;
+    color: #667eea;
+}
+
+.react-datepicker__day--keyboard-selected {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+} 

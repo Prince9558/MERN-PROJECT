@@ -54,23 +54,17 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={userDetails ?
-        <UserLayout>
-          <Navigate to='/dashboard' />
-        </UserLayout> :
+      <Route path="/" element={
         <AppLayout>
           <Home />
         </AppLayout>
-      }
-      />
-      <Route path="/login" element={userDetails ?
-        <Navigate to="/dashboard" /> :
+      } />
+      <Route path="/login" element={
         <AppLayout>
           <Login />
-        </AppLayout>}
-      />
-      <Route path="/register" element={userDetails ?
-        <Navigate to='/dashboard' /> :
+        </AppLayout>
+      } />
+      <Route path="/register" element={
         <AppLayout>
           <Register />
         </AppLayout>

@@ -5,6 +5,7 @@ import axios from "axios";
 import { serverEndpoint } from "../../config/config";
 import { SET_USER } from "../../redux/user/actions";
 import './PurchaseCredit.css';
+import './ManagePayments.css';
 import { Modal } from "react-bootstrap";
 
 function PurchaseCredit() {
@@ -194,20 +195,24 @@ function PurchaseCredit() {
         </div>
 
         {/* React-Bootstrap Modal */}
-        <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal show={showModal} onHide={() => setShowModal(false)} centered className="credit-pack-modal">
           <Modal.Header closeButton>
-            <Modal.Title>Buy Credits</Modal.Title>
+            <Modal.Title>Choose Credit Pack</Modal.Title>
           </Modal.Header>
           <Modal.Body className="text-center">
-            {CREDIT_PACKS.map((c) => (
-              <button
-                key={c}
-                className="m-2 btn btn-outline-primary"
-                onClick={() => handleBuyCredits(c)}
-              >
-                Buy {c} Credits
-              </button>
-            ))}
+            <p className="mb-4">Select the number of credits you want to purchase:</p>
+            <div className="d-flex flex-wrap justify-content-center">
+              {CREDIT_PACKS.map((c) => (
+                <button
+                  key={c}
+                  className="credit-option-btn"
+                  onClick={() => handleBuyCredits(c)}
+                >
+                  <div className="fw-bold">{c} Credits</div>
+                  <small className="text-muted">₹{c}</small>
+                </button>
+              ))}
+            </div>
           </Modal.Body>
         </Modal>
       </div>

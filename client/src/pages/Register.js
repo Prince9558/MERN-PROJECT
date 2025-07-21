@@ -4,9 +4,12 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { serverEndpoint } from "../config/config";
 import { useDispatch } from "react-redux";
 import { SET_USER } from "../redux/user/actions";
+import { Link, useNavigate } from "react-router-dom";
+import "./Register.css";
 
 function Register() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: "",
         password: "",
@@ -14,6 +17,7 @@ function Register() {
     });
 
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (event) => {
         const name = event.target.name;
@@ -28,12 +32,8 @@ function Register() {
     const validate = () => {
         let newErrors = {};
         let isValid = true;
-        // Email validation
         if (formData.username.length === 0) {
-            newErrors.username = "Email is mandatory";
-            isValid = false;
-        } else if (!/^\S+@\S+\.\S+$/.test(formData.username)) {
-            newErrors.username = "Please enter a valid email address";
+            newErrors.username = "Username is mandatory";
             isValid = false;
         }
 
@@ -55,6 +55,7 @@ function Register() {
         event.preventDefault();
 
         if (validate()) {
+            setIsLoading(true);
             const body = {
                 username: formData.username,
                 password: formData.password,
@@ -71,122 +72,184 @@ function Register() {
                     type: SET_USER,
                     payload: response.data.user
                 });
-
+                navigate('/dashboard');
             } catch (error) {
                 if (error?.response?.status === 401) {
-                    setErrors({ message: 'User exist with the given email' });
+                    setErrors({ message: 'User exists with the given email' });
+                } else if (error.code === 'ERR_NETWORK') {
+                    setErrors({ message: 'Network error. Please check your connection and try again.' });
                 } else {
                     setErrors({ message: 'Something went wrong, please try again' });
                 }
+            } finally {
+                setIsLoading(false);
             }
         }
     };
 
     const handleGoogleSignin = async (authResponse) => {
+        setIsLoading(true);
         try {
             const response = await axios.post(`${serverEndpoint}/auth/google-auth`, {
                 idToken: authResponse.credential
             }, {
-                withCredentials: true
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
             });
 
             dispatch({
                 type: SET_USER,
                 payload: response.data.userDetails
             });
+            navigate('/dashboard');
         } catch (error) {
-            console.log(error);
-            setErrors({ message: 'Something went wrong while google signin' });
+            console.log('Google Auth Error:', error);
+            if (error.code === 'ERR_NETWORK') {
+                setErrors({ message: 'Network error. Please check your connection and try again.' });
+            } else if (error.response?.status === 401) {
+                setErrors({ message: 'Google authentication failed. Please try again.' });
+            } else {
+                setErrors({ message: 'Something went wrong while google signin' });
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleGoogleSigninFailure = async (error) => {
-        console.log(error);
+        console.log('Google OAuth Error:', error);
         setErrors({ message: 'Something went wrong while google signin' });
     };
 
     return (
-        <div className="container py-5">
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <h2 className="text-center mb-4">Sign up with a new account</h2>
+        <div className="auth-container">
+            <div className="auth-background">
+                <div className="auth-card">
+                    <div className="auth-header">
+                        <div className="auth-logo">
+                            <i className="fas fa-user-plus"></i>
+                        </div>
+                        <h2 className="auth-title">Join Affiliate++</h2>
+                        <p className="auth-subtitle">Create your account and start earning</p>
+                    </div>
 
                     {/* Error Alert */}
                     {errors.message && (
-                        <div className="alert alert-danger" role="alert">
+                        <div className="auth-alert auth-alert-danger">
+                            <i className="fas fa-exclamation-circle"></i>
                             {errors.message}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="name" className="form-label">Name</label>
+                    <form onSubmit={handleSubmit} className="auth-form">
+                        <div className="form-group">
+                            <label htmlFor="name" className="form-label">
+                                <i className="fas fa-user"></i>
+                                Full Name
+                            </label>
                             <input
                                 type="text"
-                                className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                                className={`form-input ${errors.name ? 'is-invalid' : ''}`}
                                 id="name"
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
+                                placeholder="Enter your full name"
+                                disabled={isLoading}
                             />
                             {errors.name && (
-                                <div className="invalid-feedback">
+                                <div className="form-error">
+                                    <i className="fas fa-times-circle"></i>
                                     {errors.name}
                                 </div>
                             )}
                         </div>
 
-                        <div className="mb-3">
-                            <label htmlFor="username" className="form-label">Email</label>
+                        <div className="form-group">
+                            <label htmlFor="username" className="form-label">
+                                <i className="fas fa-at"></i>
+                                Username
+                            </label>
                             <input
-                                type="email"
-                                className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                                type="text"
+                                className={`form-input ${errors.username ? 'is-invalid' : ''}`}
                                 id="username"
                                 name="username"
                                 value={formData.username}
                                 onChange={handleChange}
+                                placeholder="Choose a username"
+                                disabled={isLoading}
                             />
                             {errors.username && (
-                                <div className="invalid-feedback">
+                                <div className="form-error">
+                                    <i className="fas fa-times-circle"></i>
                                     {errors.username}
                                 </div>
                             )}
                         </div>
 
-                        <div className="mb-3">
-                            <label htmlFor="password" className="form-label">Password</label>
+                        <div className="form-group">
+                            <label htmlFor="password" className="form-label">
+                                <i className="fas fa-lock"></i>
+                                Password
+                            </label>
                             <input
                                 type="password"
-                                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                className={`form-input ${errors.password ? 'is-invalid' : ''}`}
                                 id="password"
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
+                                placeholder="Create a strong password"
+                                disabled={isLoading}
                             />
                             {errors.password && (
-                                <div className="invalid-feedback">
+                                <div className="form-error">
+                                    <i className="fas fa-times-circle"></i>
                                     {errors.password}
                                 </div>
                             )}
                         </div>
 
-                        <div className="d-grid">
-                            <button type="submit" className="btn btn-primary">Submit</button>
-                        </div>
+                        <button 
+                            type="submit" 
+                            className={`auth-btn auth-btn-primary ${isLoading ? 'loading' : ''}`}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    Creating Account...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-user-plus"></i>
+                                    Create Account
+                                </>
+                            )}
+                        </button>
                     </form>
 
-                    <div className="text-center">
-                        <div className="my-4 d-flex align-items-center text-muted">
-                            <hr className="flex-grow-1" />
-                            <span className="px-2">OR</span>
-                            <hr className="flex-grow-1" />
-                        </div>
-                        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+                    <div className="auth-divider">
+                        <span className="divider-text">OR</span>
+                    </div>
+
+                    <div className="google-auth-container">
+                        <GoogleOAuthProvider clientId="633130674681-kf65cmvss4kpst12piu8kdlrubejb4je.apps.googleusercontent.com">
                             <GoogleLogin
                                 onSuccess={handleGoogleSignin}
                                 onError={handleGoogleSigninFailure}
+                                className="google-btn"
+                                disabled={isLoading}
+                                useOneTap={false}
                             />
                         </GoogleOAuthProvider>
+                    </div>
+
+                    <div className="auth-footer">
+                        <p>Already have an account? <Link to="/login" className="auth-link">Sign in</Link></p>
                     </div>
                 </div>
             </div>

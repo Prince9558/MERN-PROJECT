@@ -4,14 +4,18 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { serverEndpoint } from "../config/config";
 import { useDispatch } from "react-redux";
 import { SET_USER } from "../redux/user/actions";
+import { Link, useNavigate } from "react-router-dom";
+import "./Login.css";
 
 function Login() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         password: ''
     });
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e) => {
         const name = e.target.name;
@@ -45,6 +49,7 @@ function Login() {
         e.preventDefault();
 
         if (validate()) {
+            setIsLoading(true);
             // Data to be sent to the server
             const body = {
                 username: formData.username,
@@ -60,104 +65,168 @@ function Login() {
                     type: SET_USER,
                     payload: response.data.user
                 });
+                navigate('/dashboard');
             } catch (error) {
                 console.log(error);
-                setErrors({ message: "Something went wrong, please try again" });
+                if (error.response?.status === 401) {
+                    setErrors({ message: "Invalid username or password" });
+                } else if (error.code === 'ERR_NETWORK') {
+                    setErrors({ message: "Network error. Please check your connection and try again." });
+                } else {
+                    setErrors({ message: "Something went wrong, please try again" });
+                }
+            } finally {
+                setIsLoading(false);
             }
         }
     };
 
     const handleGoogleSuccess = async (authResponse) => {
+        setIsLoading(true);
         try {
             const response = await axios.post(`${serverEndpoint}/auth/google-auth`, {
                 idToken: authResponse.credential
             }, {
-                withCredentials: true
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
             });
             dispatch({
                 type: SET_USER,
                 payload: response.data.user
             });
+            navigate('/dashboard');
         } catch (error) {
-            console.log(error);
-            setErrors({ message: 'Error processing google auth, please try again' });
+            console.log('Google Auth Error:', error);
+            if (error.code === 'ERR_NETWORK') {
+                setErrors({ message: 'Network error. Please check your connection and try again.' });
+            } else if (error.response?.status === 401) {
+                setErrors({ message: 'Google authentication failed. Please try again.' });
+            } else {
+                setErrors({ message: 'Error processing google auth, please try again' });
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleGoogleError = async (error) => {
-        console.log(error);
+        console.log('Google OAuth Error:', error);
         setErrors({ message: 'Error in google authorization flow, please try again' });
     }
 
     return (
-        <div className="container py-5">
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <h2 className="text-center mb-4">Sign in to Continue</h2>
+        <div className="auth-container">
+            <div className="auth-background">
+                <div className="auth-card">
+                    <div className="auth-header">
+                        <div className="auth-logo">
+                            <i className="fas fa-user-circle"></i>
+                        </div>
+                        <h2 className="auth-title">Welcome Back</h2>
+                        <p className="auth-subtitle">Sign in to your Affiliate++ account</p>
+                    </div>
 
                     {/* Error Alert */}
                     {errors.message && (
-                        <div className="alert alert-danger" role="alert">
+                        <div className="auth-alert auth-alert-danger">
+                            <i className="fas fa-exclamation-circle"></i>
                             {errors.message}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="username" className="form-label">Username</label>
+                    <form onSubmit={handleSubmit} className="auth-form">
+                        <div className="form-group">
+                            <label htmlFor="username" className="form-label">
+                                <i className="fas fa-user"></i>
+                                Username
+                            </label>
                             <input
                                 type="text"
-                                className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                                className={`form-input ${errors.username ? 'is-invalid' : ''}`}
                                 id="username"
                                 name="username"
                                 value={formData.username}
                                 onChange={handleChange}
+                                placeholder="Enter your username"
+                                disabled={isLoading}
                             />
                             {errors.username && (
-                                <div className="invalid-feedback">
+                                <div className="form-error">
+                                    <i className="fas fa-times-circle"></i>
                                     {errors.username}
                                 </div>
                             )}
                         </div>
 
-                        <div className="mb-3">
-                            <label htmlFor="password" className="form-label">Password</label>
+                        <div className="form-group">
+                            <label htmlFor="password" className="form-label">
+                                <i className="fas fa-lock"></i>
+                                Password
+                            </label>
                             <input
                                 type="password"
-                                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                className={`form-input ${errors.password ? 'is-invalid' : ''}`}
                                 id="password"
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
+                                placeholder="Enter your password"
+                                disabled={isLoading}
                             />
                             {errors.password && (
-                                <div className="invalid-feedback">
+                                <div className="form-error">
+                                    <i className="fas fa-times-circle"></i>
                                     {errors.password}
                                 </div>
                             )}
                         </div>
 
-                        <div className="d-grid">
-                            <button type="submit" className="btn btn-primary">Submit</button>
-                        </div>
+                        <button 
+                            type="submit" 
+                            className={`auth-btn auth-btn-primary ${isLoading ? 'loading' : ''}`}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    Signing In...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-sign-in-alt"></i>
+                                    Sign In
+                                </>
+                            )}
+                        </button>
                     </form>
 
-                    <div className="text-center mt-3">
-                        <a href="/forget-password">Forgot Password?</a>
+                    <div className="auth-links">
+                        <Link to="/forget-password" className="auth-link">
+                            <i className="fas fa-key"></i>
+                            Forgot Password?
+                        </Link>
                     </div>
 
-                    <div className="text-center">
-                        <div className="my-4 d-flex align-items-center text-muted">
-                            <hr className="flex-grow-1" />
-                            <span className="px-2">OR</span>
-                            <hr className="flex-grow-1" />
-                        </div>
-                        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+                    <div className="auth-divider">
+                        <span className="divider-text">OR</span>
+                    </div>
+
+                    <div className="google-auth-container">
+                        <GoogleOAuthProvider clientId="633130674681-kf65cmvss4kpst12piu8kdlrubejb4je.apps.googleusercontent.com">
                             <GoogleLogin
                                 onSuccess={handleGoogleSuccess}
                                 onError={handleGoogleError}
+                                className="google-btn"
+                                disabled={isLoading}
+                                useOneTap={false}
                             />
                         </GoogleOAuthProvider>
+                    </div>
+
+                    <div className="auth-footer">
+                        <p>Don't have an account? <Link to="/register" className="auth-link">Sign up</Link></p>
                     </div>
                 </div>
             </div>

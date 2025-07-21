@@ -1,0 +1,262 @@
+/* Manage Payments Page Styles */
+.manage-payments-container {
+    padding: 2rem 0;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.payments-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.payments-header h2 {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.payments-header p {
+    color: #666;
+    margin-bottom: 0;
+}
+
+/* Pricing Cards */
+.ezy__pricing10 {
+    background: #f8f9fa;
+    padding: 2rem 0;
+}
+
+.ezy__pricing10-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    overflow: hidden;
+    position: relative;
+}
+
+.ezy__pricing10-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border-color: #667eea;
+}
+
+.ezy__pricing10-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ezy__pricing10-meta-price {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.ezy__pricing10-rate {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    display: block;
+}
+
+.ezy__pricing10-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ezy__pricing10-nav li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.ezy__pricing10-nav li:last-child {
+    border-bottom: none;
+}
+
+.ezy__pricing10-nav li::before {
+    content: '✓';
+    color: #28a745;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+/* Credit Pack Modal */
+.credit-pack-modal .modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.credit-pack-modal .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+}
+
+.credit-pack-modal .modal-title {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.credit-pack-modal .modal-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+.credit-option-btn {
+    margin: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    border: 2px solid #e9ecef;
+    background: white;
+    color: #333;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.credit-option-btn:hover {
+    border-color: #667eea;
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Current Balance Display */
+.balance-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.balance-display h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.balance-display p {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Subscription Status */
+.subscription-status {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.subscription-status h3 {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 15px;
+    border: none;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .payments-header {
+        padding: 1.5rem;
+    }
+    
+    .payments-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .ezy__pricing10-card {
+        margin-bottom: 2rem;
+    }
+    
+    .credit-option-btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+    
+    .balance-display {
+        padding: 1rem;
+    }
+    
+    .balance-display h3 {
+        font-size: 1.1rem;
+    }
+    
+    .balance-display p {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .payments-header {
+        padding: 1rem;
+    }
+    
+    .payments-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .ezy__pricing10-rate {
+        font-size: 1.5rem;
+    }
+    
+    .credit-option-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+} 

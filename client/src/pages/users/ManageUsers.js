@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { serverEndpoint } from "../../config/config";
 import { Modal } from 'react-bootstrap';
+import './ManageUsers.css';
 
 const USER_ROLES = ['viewer', 'developer'];
 
@@ -187,12 +188,19 @@ function ManageUsers() {
     ];
 
     return (
-        <div className="container py-4">
-
-            <div className="d-flex justify-content-between mb-3">
-                <h2>Manage Users</h2>
-                <button className='btn btn-primary btn-sm' onClick={() => handleModalShow(false)}>Add</button>
-            </div>
+        <div className="manage-users-container">
+            <div className="container">
+                <div className="users-header">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2>Manage Users</h2>
+                            <p>Add, edit, and manage user accounts</p>
+                        </div>
+                        <button className='add-user-btn' onClick={() => handleModalShow(false)}>
+                            <i className="fas fa-plus me-2"></i>Add User
+                        </button>
+                    </div>
+                </div>
 
             {errors.message && (
                 <div className="alert alert-danger" role="alert">
@@ -200,7 +208,7 @@ function ManageUsers() {
                 </div>
             )}
 
-            <div style={{ height: 500, width: '100%' }}>
+            <div className="users-grid">
                 <DataGrid
                     getRowId={(row) => row._id}
                     rows={usersData}
@@ -304,7 +312,7 @@ function ManageUsers() {
                     <Modal.Title>Confirm Delete</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Are you sure you want to delete this link?
+                    Are you sure you want to delete this user?
                 </Modal.Body>
                 <Modal.Footer>
                     <button className="btn btn-secondary" onClick={() => setShowDeleteModal()}>
@@ -322,9 +330,9 @@ function ManageUsers() {
                             Delete
                         </button>
                     )}
-
                 </Modal.Footer>
             </Modal>
+            </div>
         </div>
     );
 }
