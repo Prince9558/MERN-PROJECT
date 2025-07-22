@@ -25,11 +25,32 @@ app.use((req, res, next) => {
 
 app.use(cookieParser());
 
+// Updated CORS configuration to handle multiple origins
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://singular-gingersnap-4706d5.netlify.app',
+    'https://visionary-banoffee-3f22a8.netlify.app',
+    'https://affiliate-plus-plus.netlify.app'
+];
+
 const corsOptions = {
-    origin: process.env.CLIENT_ENDPOINT,
-    credentials: true
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
+
 app.use(cors(corsOptions));
+
 app.use('/auth', authRoutes);
 app.use('/links', linksRoutes);
 app.use('/users', userRoutes);
@@ -42,5 +63,5 @@ app.listen(5001, (error) => {
         console.log('Error starting the server: ', error);
     } else {
         console.log(`Server is running at http://localhost:${PORT}`);
-    }
+    }
 });
