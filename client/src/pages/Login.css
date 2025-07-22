@@ -240,10 +240,18 @@
 }
 
 /* Google Auth */
-.google-auth-container {
+/* .google-auth-container {
     text-align: center;
     margin-bottom: 1.5rem;
+} */
+
+
+.google-auth-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
 }
+
 
 .google-btn {
     width: 100% !important;

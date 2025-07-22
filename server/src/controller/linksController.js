@@ -3,11 +3,12 @@ const Users = require("../model/Users")
 const axios = require('axios');
 const { getDeviceInfo } = require("../util/linkUtil");
 const Clicks = require('../model/Clicks');
+const { generateUploadSignature } = require("../service/cloudinaryService");
 
 
 const linksController = {
     create: async (request, response) => {
-        const { campaign_title, original_url, category } = request.body;
+        const { campaign_title, original_url, category, thumbnail } = request.body;
 
         try {
              // we are fetching user details from DB even through we have 
@@ -34,6 +35,7 @@ const linksController = {
                 campaignTitle: campaign_title,
                 originalUrl: original_url,
                 category: category,
+                thumbnail:thumbnail,
                 user: request.user.role === 'admin' ?
                     request.user.id : request.user.adminId
             });
@@ -55,12 +57,33 @@ const linksController = {
 
     getAll: async (request, response) => {
         try {
+            const{
+                currentPage = 0, pageSize = 10,   //Pagination
+                searchQuery= '',    //Search
+                sortField='createdAt', sortOrder = 'desc'   //Sorting
+            } = request.query;
             const userId = request.user.role === 'admin' ?
                 request.user.id : request.user.adminId;
-            const links = await Links
-                .find({ user: userId })
-                .sort({ createdAt: -1 });
-            response.json({ data: links });
+
+                const skip = parseInt(currentPage) * parseInt(pageSize);
+                const limit = parseInt(pageSize);
+                const sort = { [sortField]: sortOrder === 'desc' ? -1:1};
+
+                const query = {
+                    user: userId
+                };
+                if(searchQuery){
+                    query.$or = [
+                        { compaignTitle: new RegExp(searchQuery, 'i') },
+                        { originalUrl: new RegExp(searchQuery, 'i') },
+                        { category: new RegExp(searchQuery, 'i') },
+                    ];
+                }
+            const links = await Links.find(query)
+                .sort(sort).skip(skip).limit(limit);
+
+            const total = await Links.countDocuments(query);
+            response.json({ links, total });
         } catch (error) {
             console.log(error);
             response.status(500).json({
@@ -124,11 +147,12 @@ const linksController = {
                 });
             }
 
-            const { campaign_title, original_url, category } = request.body;
+            const { campaign_title, original_url, category, thumbnail} = request.body;
             link = await Links.findByIdAndUpdate(linkId, {
                 campaignTitle: campaign_title,
                 originalUrl: original_url,
-                category: category
+                category: category,
+                thumbnail:thumbnail,
             }, { new: true }); // new: true flag makes sure mongodb returns updated data after the update operation
 
             // Return updated link data
@@ -265,6 +289,22 @@ const linksController = {
             return response.status(500).json({
                 message: 'Internal server error'
             });
+        }
+    },
+
+    createUploadSignature: async (request, response) => {
+        try{
+            const { signature, timestamp } = generateUploadSignature();
+
+            response.json({
+                signature: signature,
+                timestamp: timestamp,
+                apikey: process.env.CLOUDINARY_API_KEY,
+                cloudName: process.env.CLOUDINARY_NAME
+            });
+        }catch(error){
+            console.log(error);
+            response.status(500).json({message: 'Internal server error'});
         }
     },
 };

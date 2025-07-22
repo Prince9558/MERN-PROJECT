@@ -2,8 +2,9 @@ import "./Footer.css";
 
 function Footer() {
     return (
+        <div className="container-fluid">
         <footer className="footer-modern">
-            <div className="container">
+            
                 <div className="footer-content">
                     <div className="footer-section">
                         <h5 className="footer-title">Affiliate++</h5>
@@ -32,8 +33,9 @@ function Footer() {
                         <p>&copy; 2025 Affiliate++. All rights reserved.</p>
                     </div>
                 </div>
-            </div>
+            
         </footer>
+        </div>
     );
 }
 

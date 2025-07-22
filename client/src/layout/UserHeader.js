@@ -9,7 +9,7 @@ function UserHeader() {
     return (
         <nav className="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
             <div className="container">
-                <Link className="navbar-brand" to="/">
+                <Link className="navbar-brand" to="/dashboard">
                     Dashboard
                 </Link>
                 <button
