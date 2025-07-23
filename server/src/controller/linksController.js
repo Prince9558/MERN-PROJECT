@@ -216,6 +216,8 @@ const linksController = {
                 ? '8.8.8.8'
                 : request.headers['x-forwaded-for']?.split(',')[0]
                 || request.socket.remoteAddress;
+            console.log('IP Address: ', ipAddress);
+            console.log('Node Env: ', process.env.NODE_ENV);
 
             const getResponse = await axios.get(`http://ip-api.com/json/${ipAddress}`);
             const { city, country, region, lat, lon, isp } = getResponse.data;
