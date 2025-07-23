@@ -214,7 +214,7 @@ const linksController = {
             const isDevelopment = process.env.NODE_ENV === 'development';
             const ipAddress = isDevelopment
                 ? '8.8.8.8'
-                : request.headers['x-forwaded-for']?.split(',')[0]
+                : request.headers['x-forwarded-for']?.split(',')[0]
                 || request.socket.remoteAddress;
             console.log('IP Address: ', ipAddress);
             console.log('Node Env: ', process.env.NODE_ENV);
