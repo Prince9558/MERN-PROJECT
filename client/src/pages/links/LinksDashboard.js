@@ -1,3 +1,5 @@
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import { DataGrid } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
@@ -9,6 +11,30 @@ import { serverEndpoint } from '../../config/config';
 import { Modal } from 'react-bootstrap';
 import { usePermission } from '../../rbac/userPermissions';
 import { useNavigate } from 'react-router-dom';
+
+function CustomLoadingOverlay() {
+    return (
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                zIndex: 1,
+            }}
+        >
+            <CircularProgress size={40} />
+            <span style={{ marginTop: '10px', fontWeight: '500', color: '#555' }}>Loading...</span>
+        </Box>
+    );
+}
 
 function LinksDashboard() {
     const [errors, setErrors] = useState({});
@@ -211,8 +237,8 @@ function LinksDashboard() {
     const columns = [
         {field : 'thumbnail', headerName: 'Thumbnail', sortable: false, flex: 1,
             renderCell: (params) => (
-                params.row.thumbnail? (
-                    <img src={params.row.thumbnail} alt='thumbnail' style={{maxHeight: '45px'}}/>
+                params.row.thumbnail ? (
+                    <img src={params.row.thumbnail} alt='thumbnail' style={{maxHeight: '40px', maxWidth: '40px', objectFit: 'contain'}}/>
                 ):(
                     <span style={{ color: '#888'}}>No Image</span>
                 )
@@ -329,6 +355,9 @@ function LinksDashboard() {
                         setSortModel(newModel);
                         setCurrentPage(0);
                     }}
+                    slots={{
+                        loadingOverlay: CustomLoadingOverlay,
+                    }}
                     disableRowSelectionOnClick
                     showToolbar
                     sx={{
@@ -412,7 +441,8 @@ function LinksDashboard() {
                         />
                         {previewUrl && (
                             <img src={previewUrl} alt='preview'
-                                className='img-responsive border rounded-2'
+                                className='img-responsive border rounded-2 mt-2'
+                                style={{ maxHeight: '100px', maxWidth: '100%', objectFit: 'contain' }}
                             />
                         )}
                     </div>
