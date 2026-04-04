@@ -74,7 +74,10 @@ function Register() {
                 });
                 navigate('/dashboard');
             } catch (error) {
-                if (error?.response?.status === 401) {
+                if (error.response && error.response.data) {
+                    const errorMsg = error.response.data.message || error.response.data.error || 'Something went wrong, please try again';
+                    setErrors({ message: errorMsg });
+                } else if (error.response && error.response.status === 401) {
                     setErrors({ message: 'User exists with the given email' });
                 } else if (error.code === 'ERR_NETWORK') {
                     setErrors({ message: 'Network error. Please check your connection and try again.' });
@@ -108,6 +111,8 @@ function Register() {
             console.log('Google Auth Error:', error);
             if (error.code === 'ERR_NETWORK') {
                 setErrors({ message: 'Network error. Please check your connection and try again.' });
+            } else if (error.response && error.response.data && error.response.data.message) {
+                setErrors({ message: error.response.data.message });
             } else if (error.response?.status === 401) {
                 setErrors({ message: 'Google authentication failed. Please try again.' });
             } else {

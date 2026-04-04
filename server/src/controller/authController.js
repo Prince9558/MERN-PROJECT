@@ -61,7 +61,7 @@ const authController = {
             response.json({ user: user, message: 'User authenticated' });
         } catch (error) {
             console.log(error);
-            response.status(500).json({ error: 'Internal server error' });
+            response.status(500).json({ error: 'Internal server error', details: error.message });
         }
     },
 
@@ -154,7 +154,7 @@ const authController = {
             response.json({ message: 'User registered', user: userDetails });
         } catch (error) {
             console.log(error);
-            return response.status(500).json({ error: 'Internal Server Error' });
+            return response.status(500).json({ error: 'Internal Server Error', details: error.message });
         }
     },
 

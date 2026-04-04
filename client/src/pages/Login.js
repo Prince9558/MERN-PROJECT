@@ -68,8 +68,16 @@ function Login() {
                 navigate('/dashboard');
             } catch (error) {
                 console.log(error);
-                if (error.response?.status === 401) {
-                    setErrors({ message: "Invalid username or password" });
+                if (error.response && error.response.data) {
+                    if (error.response.data.errors && error.response.data.errors.length > 0) {
+                        setErrors({ message: error.response.data.errors[0].msg });
+                    } else if (error.response.data.message || error.response.data.error) {
+                        setErrors({ message: error.response.data.message || error.response.data.error });
+                    } else if (error.response?.status === 401) {
+                        setErrors({ message: "Invalid username or password" });
+                    } else {
+                        setErrors({ message: "Something went wrong, please try again" });
+                    }
                 } else if (error.code === 'ERR_NETWORK') {
                     setErrors({ message: "Network error. Please check your connection and try again." });
                 } else {
@@ -101,6 +109,8 @@ function Login() {
             console.log('Google Auth Error:', error);
             if (error.code === 'ERR_NETWORK') {
                 setErrors({ message: 'Network error. Please check your connection and try again.' });
+            } else if (error.response && error.response.data && error.response.data.message) {
+                setErrors({ message: error.response.data.message });
             } else if (error.response?.status === 401) {
                 setErrors({ message: 'Google authentication failed. Please try again.' });
             } else {
