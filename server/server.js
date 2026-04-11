@@ -1,67 +1,60 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const express = require('express'); // Include the express module
+const express = require('express');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+
 const authRoutes = require('./src/routes/authRoutes');
 const linksRoutes = require('./src/routes/linksRoutes');
 const userRoutes = require('./src/routes/userRoutes');
-const paymentRoutes=require('./src/routes/paymentRoutes');
-const cors = require('cors');
+const paymentRoutes = require('./src/routes/paymentRoutes');
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch((error) => console.log(error));
+const app = express();
 
-const app = express(); // Instantiate express app.
-
+// Middleware
 app.use((req, res, next) => {
-  // Skip JSON middleware for the webhook endpoint
   if (req.originalUrl.startsWith('/payments/webhook')) {
     return next();
   }
-
   express.json()(req, res, next);
 });
 
 app.use(cookieParser());
 
-// Updated CORS configuration to handle multiple origins
 const allowedOrigins = [
-    'http://localhost:3000',
-    'https://singular-gingersnap-4706d5.netlify.app',
-    'https://visionary-banoffee-3f22a8.netlify.app',
-    'https://affiliate-plus-plus.netlify.app'
+  'http://localhost:3000',
+  'https://singular-gingersnap-4706d5.netlify.app',
+  'https://visionary-banoffee-3f22a8.netlify.app',
+  'https://affiliate-plus-plus.netlify.app'
 ];
 
-const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-};
-
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 
 app.use('/auth', authRoutes);
 app.use('/links', linksRoutes);
 app.use('/users', userRoutes);
+app.use('/payments', paymentRoutes);
 
-app.use('/payments',paymentRoutes);
+// 🔥 IMPORTANT: DB connect → THEN server start
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('✅ MongoDB Connected');
 
-const PORT = 5001;
-app.listen(5001, (error) => {
-    if (error) {
-        console.log('Error starting the server: ', error);
-    } else {
-        console.log(`Server is running at http://localhost:${PORT}`);
-    }
-});
+    app.listen(5001, () => {
+      console.log(`🚀 Server running on port 5001`);
+    });
+
+  })
+  .catch((error) => {
+    console.log('❌ DB Connection Error:', error);
+  });
