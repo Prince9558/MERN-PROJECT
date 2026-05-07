@@ -1,6 +1,5 @@
 import { useState } from "react";
 import axios from 'axios';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { serverEndpoint } from "../config/config";
 import { useDispatch } from "react-redux";
 import { SET_USER } from "../redux/user/actions";
@@ -90,43 +89,6 @@ function Register() {
         }
     };
 
-    const handleGoogleSignin = async (authResponse) => {
-        setIsLoading(true);
-        try {
-            const response = await axios.post(`${serverEndpoint}/auth/google-auth`, {
-                idToken: authResponse.credential
-            }, {
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            dispatch({
-                type: SET_USER,
-                payload: response.data.userDetails
-            });
-            navigate('/dashboard');
-        } catch (error) {
-            console.log('Google Auth Error:', error);
-            if (error.code === 'ERR_NETWORK') {
-                setErrors({ message: 'Network error. Please check your connection and try again.' });
-            } else if (error.response && error.response.data && error.response.data.message) {
-                setErrors({ message: error.response.data.message });
-            } else if (error.response?.status === 401) {
-                setErrors({ message: 'Google authentication failed. Please try again.' });
-            } else {
-                setErrors({ message: 'Something went wrong while google signin' });
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleGoogleSigninFailure = async (error) => {
-        console.log('Google OAuth Error:', error);
-        setErrors({ message: 'Something went wrong while google signin' });
-    };
 
     return (
         <div className="auth-container">
@@ -237,21 +199,7 @@ function Register() {
                         </button>
                     </form>
 
-                    <div className="auth-divider">
-                        <span className="divider-text">OR</span>
-                    </div>
 
-                    <div className="google-auth-container">
-                        <GoogleOAuthProvider clientId="633130674681-kf65cmvss4kpst12piu8kdlrubejb4je.apps.googleusercontent.com">
-                            <GoogleLogin
-                                onSuccess={handleGoogleSignin}
-                                onError={handleGoogleSigninFailure}
-                                className="google-btn"
-                                disabled={isLoading}
-                                useOneTap={false}
-                            />
-                        </GoogleOAuthProvider>
-                    </div>
 
                     <div className="auth-footer">
                         <p>Already have an account? <Link to="/login" className="auth-link">Sign in</Link></p>

@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Users = require('../model/Users');
-const { OAuth2Client } = require('google-auth-library');
 const { validationResult } = require('express-validator');
 const { attemptToRefreshToken } = require('../util/authUtil');
 const sendMail = require('../service/emailService');
@@ -155,64 +154,6 @@ const authController = {
         } catch (error) {
             console.log(error);
             return response.status(500).json({ error: 'Internal Server Error', details: error.message });
-        }
-    },
-
-    googleAuth: async (request, response) => {
-        try {
-            const { idToken } = request.body;
-            if (!idToken) {
-                return response.status(401).json({ message: 'Invalid request' });
-            }
-
-            const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-            const googleResponse = await googleClient.verifyIdToken({
-                idToken: idToken,
-                audience: process.env.GOOGLE_CLIENT_ID
-            });
-
-            const payload = googleResponse.getPayload();
-            const { sub: googleId, name, email } = payload;
-
-            let data = await Users.findOne({ email: email });
-            if (!data) {
-                data = new Users({
-                    email: email,
-                    name: name,
-                    isGoogleUser: true,
-                    googleId: googleId,
-                    role: 'admin'
-                });
-                await data.save();
-            }
-
-            const user = {
-                id: data._id ? data._id : googleId,
-                username: email,
-                name: name,
-                role: data.role ? data.role : 'admin', // This is the ensure backward compatibility
-                credits: data.credits
-            };
-            //Making 1 minute only for testing, revert it back to 1h
-            const token = jwt.sign(user, secret, { expiresIn: '1h' });
-            response.cookie('jwtToken', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                path: '/',
-                sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
-            });
-
-            const refreshToken = jwt.sign(user, refreshSecret, { expiresIn: '7d'});
-            response.cookie('refreshToken', refreshToken, {
-              httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                path: '/',
-                sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
-            });
-            response.json({ user: user, message: 'User authenticated' });
-        } catch (error) {
-            console.log(error);
-            return response.status(500).json({ message: 'Internal server error' });
         }
     },
 
